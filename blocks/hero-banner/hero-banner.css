@@ -1,6 +1,6 @@
-/* hero-banner: structural styles only; brand styling belongs to the design pass */
-.hero-banner-container .hero-banner-wrapper {
-  max-width: unset;
+/* hero-banner: source .cmp-banner (thisisbarcelona.com home, #cmp-banner-0 / #cmp-banner-1) */
+main > .section > .hero-banner-wrapper {
+  max-width: 100%;
   padding: 0;
 }
 
@@ -8,9 +8,12 @@
   position: relative;
   isolation: isolate;
   display: flex;
-  align-items: flex-end;
-  min-height: 560px;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  height: min(100dvh, 230vw);
   overflow: hidden;
+  color: var(--tib-white);
 }
 
 .hero-banner .hero-banner-media {
@@ -26,79 +29,140 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
 }
 
+/* source .cmp-banner__overlay: only rendered on banners with text over the video */
+.hero-banner:has(.hero-banner-title) .hero-banner-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(rgb(0 0 0 / 0%) 0, rgb(0 0 0 / 20%) 50%, rgb(0 0 0 / 85%));
+}
+
+/* source .cmp-banner__container: flex column, heading top, info group bottom */
 .hero-banner .hero-banner-content {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
   box-sizing: border-box;
   width: 100%;
-  max-width: 1200px;
+  max-width: var(--content-max-width);
+  min-height: 0;
   margin: 0 auto;
-  padding: 24px 24px 80px;
+  padding: 40px 16px;
 }
 
 .hero-banner .hero-banner-title {
-  margin: 0 0 16px;
+  max-width: 696px;
+  margin: 0 0 auto;
+  font-family: var(--body-medium-font-family);
+  font-size: 40px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--tib-white);
 }
 
-.hero-banner .hero-banner-title a {
+.hero-banner .hero-banner-title + * {
+  margin-top: 32px;
+}
+
+.hero-banner .hero-banner-title a:any-link,
+.hero-banner .hero-banner-title a:hover {
   color: inherit;
   text-decoration: none;
 }
 
-.hero-banner .hero-banner-content p {
-  max-width: 60ch;
+/* source .cmp-banner__description.text-body-l */
+.hero-banner .hero-banner-content > p:not(.button-container) {
+  max-width: 572px;
+  margin: 0 0 24px;
+  font-family: var(--body-font-family);
+  font-size: var(--body-font-size-l);
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: var(--body-letter-spacing);
+  color: var(--tib-white);
 }
 
+.hero-banner .hero-banner-content > .button-container {
+  display: flex;
+  margin: 0;
+}
+
+/* source .button--secondary.dark-mode */
+main .hero-banner a.button:any-link {
+  background-color: var(--button-dark-bg);
+  color: var(--button-dark-color);
+}
+
+main .hero-banner a.button:any-link:hover {
+  background-color: var(--button-dark-bg-hover);
+  color: var(--button-dark-color);
+}
+
+/* source .cmp-banner__pause-btn */
 .hero-banner .hero-banner-toggle {
   position: absolute;
-  right: 24px;
-  bottom: 24px;
-  display: inline-flex;
+  top: 24px;
+  right: 16px;
+  z-index: 1;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
   margin: 0;
   padding: 0;
-  border: 1px solid currentcolor;
+  border: 1px solid rgb(255 255 255 / 20%);
   border-radius: 50%;
-  background: transparent;
-  color: inherit;
+  background-color: rgb(0 0 0 / 55%);
+  color: var(--tib-white);
   cursor: pointer;
+}
+
+.hero-banner .hero-banner-toggle:focus-visible {
+  outline: 1.5px solid var(--focus-ring-color);
+  outline-offset: 1px;
 }
 
 /* pause icon (two bars) while playing */
 .hero-banner .hero-banner-toggle::before {
   content: '';
-  width: 12px;
-  height: 14px;
-  border-left: 4px solid currentcolor;
-  border-right: 4px solid currentcolor;
   box-sizing: border-box;
+  width: 10px;
+  height: 12px;
+  border-left: 3.5px solid currentcolor;
+  border-right: 3.5px solid currentcolor;
 }
 
 /* play icon (triangle) while paused */
 .hero-banner .hero-banner-toggle.is-paused::before {
   width: 0;
   height: 0;
-  margin-left: 3px;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-  border-left: 13px solid currentcolor;
+  margin-left: 2px;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid currentcolor;
   border-right: 0;
 }
 
 @media (width >= 900px) {
-  .hero-banner {
-    min-height: 640px;
+  .hero-banner .hero-banner-content {
+    padding: 40px 24px;
   }
 
-  .hero-banner .hero-banner-content {
-    padding: 48px 32px 96px;
+  .hero-banner .hero-banner-title {
+    font-size: var(--heading-font-size-xl);
+    line-height: 1;
   }
 
   .hero-banner .hero-banner-toggle {
-    right: 32px;
-    bottom: 32px;
+    top: 72px;
+    right: 24px;
   }
 }

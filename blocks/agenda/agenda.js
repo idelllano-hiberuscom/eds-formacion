@@ -96,13 +96,20 @@ function absolute(url, origin) {
   }
 }
 
+/* month abbreviations used by the source site (data-i18n-month-abbr*) */
+const MONTH_ABBR = {
+  en: ['Jan.', 'Feb.', 'Mar.', 'Apr.', 'May', 'June', 'July', 'Aug.', 'Sept.', 'Oct.', 'Nov.', 'Dec.'],
+};
+
 function formatDateParts(iso, lang) {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return null;
   const opts = { timeZone: 'UTC' };
   return {
     day: new Intl.DateTimeFormat(lang, { ...opts, day: '2-digit' }).format(date),
-    month: new Intl.DateTimeFormat(lang, { ...opts, month: 'short' }).format(date),
+    month: MONTH_ABBR[lang]?.[date.getUTCMonth()]
+      || new Intl.DateTimeFormat(lang, { ...opts, month: 'short' }).format(date),
+    monthLong: new Intl.DateTimeFormat(lang, { ...opts, month: 'long' }).format(date),
     year: new Intl.DateTimeFormat(lang, { ...opts, year: 'numeric' }).format(date),
     full: new Intl.DateTimeFormat(lang, {
       ...opts, day: 'numeric', month: 'long', year: 'numeric',
@@ -111,49 +118,54 @@ function formatDateParts(iso, lang) {
   };
 }
 
-function buildDate(item, lang) {
+/** "20 of November of 2026" / "From 21 of November to 01 of December of 2026" (grid view) */
+function dateText(start, end, lang) {
+  if (lang !== 'en') return end ? `${start.full} – ${end.full}` : start.full;
+  const long = (p, withYear) => `${p.day} of ${p.monthLong}${withYear ? ` of ${p.year}` : ''}`;
+  if (!end) return long(start, true);
+  const sameYear = start.year === end.year;
+  return `From ${long(start, !sameYear)} to ${long(end, true)}`;
+}
+
+function buildDate(start, end) {
   const wrap = el('div', 'agenda-event-date');
-  const start = item.startDate && formatDateParts(item.startDate, lang);
-  if (!start) return null;
-  const end = item.endDate && formatDateParts(item.endDate, lang);
   const part = (p) => {
     const t = document.createElement('time');
+    t.className = 'agenda-date-group';
     t.dateTime = p.iso;
     t.setAttribute('aria-label', p.full);
-    t.append(el('span', 'agenda-date-day', p.day), el('span', 'agenda-date-month', `${p.month} ${p.year}`));
+    const meta = el('span', 'agenda-date-meta');
+    meta.append(el('span', 'agenda-date-month', p.month), el('span', 'agenda-date-year', p.year));
+    t.append(el('span', 'agenda-date-day', p.day), meta);
     return t;
   };
   wrap.append(part(start));
-  if (end && end.full !== start.full) {
-    wrap.append(el('span', 'agenda-date-separator', '–'), part(end));
+  if (end) {
+    wrap.append(el('span', 'agenda-date-separator', '-'), part(end));
     wrap.classList.add('is-range');
   }
   return wrap;
 }
 
+/*
+ * One flat article per event; CSS places the parts for the three layouts:
+ * mobile list (date column + text), desktop list (text | hover image | big date)
+ * and grid cards (text above image, category tag on the image).
+ */
 function buildEvent(item, config) {
   const li = el('li', 'agenda-event');
   const article = el('article', 'agenda-event-inner');
   const href = absolute(item.titleUrl || item.ctaSaberUrl, config.origin);
 
-  if (item.imageUrl) {
-    const media = el('div', 'agenda-event-image');
-    const img = document.createElement('img');
-    img.src = item.imageUrl;
-    img.alt = item.imageAlt || '';
-    img.loading = 'lazy';
-    img.decoding = 'async';
-    img.addEventListener('error', () => media.remove());
-    media.append(img);
-    article.append(media);
-  }
+  const start = item.startDate && formatDateParts(item.startDate, config.lang);
+  let end = item.endDate && formatDateParts(item.endDate, config.lang);
+  if (start && end && end.full === start.full) end = null;
+  if (start) article.append(buildDate(start, end));
 
-  const body = el('div', 'agenda-event-body');
-  const date = buildDate(item, config.lang);
-  if (date) body.append(date);
-
+  const category = item.infoTags?.length ? item.infoTags.join(' | ') : '';
   const metaParts = [];
-  if (item.infoTags?.length) metaParts.push(el('span', 'agenda-event-category', item.infoTags.join(' | ')));
+  if (start) metaParts.push(el('span', 'agenda-event-when', dateText(start, end, config.lang)));
+  if (category) metaParts.push(el('span', 'agenda-event-category', category));
   if (item.address) metaParts.push(el('span', 'agenda-event-location', item.address));
   if (metaParts.length) {
     const meta = el('p', 'agenda-event-meta');
@@ -161,7 +173,7 @@ function buildEvent(item, config) {
       if (i) meta.append(el('span', 'agenda-event-divider', '|'));
       meta.append(p);
     });
-    body.append(meta);
+    article.append(meta);
   }
 
   const title = el('h3', 'agenda-event-title');
@@ -172,19 +184,33 @@ function buildEvent(item, config) {
   } else {
     title.textContent = item.title || '';
   }
-  body.append(title);
+  article.append(title);
 
-  if (item.description) body.append(el('p', 'agenda-event-summary', item.description));
+  if (item.description) article.append(el('p', 'agenda-event-summary', item.description));
 
   if (href) {
+    const actions = el('div', 'agenda-event-actions');
     const more = el('a', 'agenda-event-link', 'Find out more');
     more.href = href;
     more.setAttribute('aria-hidden', 'true');
     more.tabIndex = -1;
-    body.append(more);
+    actions.append(more);
+    article.append(actions);
   }
 
-  article.append(body);
+  if (item.imageUrl) {
+    const media = el('div', 'agenda-event-image');
+    const img = document.createElement('img');
+    img.src = item.imageUrl;
+    img.alt = item.imageAlt || '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('error', () => media.remove());
+    media.append(img);
+    if (category) media.append(el('span', 'agenda-event-tag', category));
+    article.append(media);
+  }
+
   li.append(article);
   return li;
 }
@@ -239,14 +265,22 @@ async function fetchEvents(config, { offset, range }) {
   }
 }
 
+/* phosphor squares-four / list (the source icon font is not loaded) */
+const VIEW_ICONS = {
+  grid: '<svg class="agenda-view-icon" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="M48 48h56v56H48zM152 48h56v56h-56zM48 152h56v56H48zM152 152h56v56h-56z"/></svg>',
+  list: '<svg class="agenda-view-icon" viewBox="0 0 256 256" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="16" d="M40 128h176M40 64h176M40 192h176"/></svg>',
+};
+
 function buildToggle(block, initial) {
   const toggle = el('div', 'agenda-view-toggle');
   toggle.setAttribute('role', 'group');
   toggle.setAttribute('aria-label', 'View');
   const buttons = ['grid', 'list'].map((view) => {
-    const b = el('button', `agenda-view-btn agenda-view-btn-${view}`, capitalize(view));
+    const b = el('button', `agenda-view-btn agenda-view-btn-${view}`);
     b.type = 'button';
     b.dataset.view = view;
+    b.innerHTML = VIEW_ICONS[view];
+    b.append(el('span', null, capitalize(view)));
     return b;
   });
   const set = (view) => {
@@ -260,8 +294,23 @@ function buildToggle(block, initial) {
   return toggle;
 }
 
+/*
+ * The date numerals are sized for the narrow SwisspostersVAR face. When no web
+ * font is declared for it (commercial font, not shipped) a wider fallback is
+ * used, so flag the block and let CSS scale the numerals down to fit.
+ */
+async function flagFallbackFont(block) {
+  try {
+    const faces = await document.fonts.load('700 56px SwisspostersVAR-Black', '0123456789');
+    if (!faces.length) block.classList.add('agenda-font-fallback');
+  } catch (e) {
+    block.classList.add('agenda-font-fallback');
+  }
+}
+
 export default function decorate(block) {
   const config = readConfig(block);
+  flagFallbackFont(block);
   block.textContent = '';
   block.setAttribute('aria-busy', 'true');
 
@@ -294,8 +343,9 @@ export default function decorate(block) {
   const more = el('button', 'agenda-load-more button secondary', config.loadMoreLabel);
   more.type = 'button';
   more.hidden = true;
+  const count = el('span', 'agenda-results-count');
   const footer = el('div', 'agenda-footer');
-  footer.append(more);
+  footer.append(count, more);
   block.append(list, status, footer);
 
   let requestId = 0;
@@ -318,11 +368,13 @@ export default function decorate(block) {
       state.offset = state.loaded;
       status.textContent = state.loaded ? '' : 'No events found.';
       more.hidden = !items.length || state.loaded >= total;
+      count.textContent = state.loaded ? `${state.loaded} / ${Math.max(total, state.loaded)}` : '';
     } catch (e) {
       if (current !== requestId) return;
       // CORS, network, timeout or bad response: degrade to a short message
       if (!append) list.textContent = '';
       more.hidden = true;
+      count.textContent = '';
       status.textContent = 'Events could not be loaded right now.';
       block.classList.add('agenda-error');
     } finally {

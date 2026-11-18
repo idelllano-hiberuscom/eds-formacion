@@ -42,6 +42,7 @@ export default function decorate(block) {
 
   const mediaWrap = document.createElement('div');
   mediaWrap.className = 'hero-video-media';
+  let toggle;
 
   if (desktop) {
     const video = document.createElement('video');
@@ -76,6 +77,29 @@ export default function decorate(block) {
     apply();
     mq.addEventListener('change', apply);
     mediaWrap.append(video);
+
+    // pause / play toggle (aria-pressed=true means the video is paused)
+    toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.className = 'hero-video-toggle';
+    const sync = () => {
+      const paused = video.paused && !video.autoplay;
+      toggle.setAttribute('aria-pressed', String(paused));
+      toggle.setAttribute('aria-label', paused ? 'Play video' : 'Pause video');
+    };
+    toggle.addEventListener('click', () => {
+      if (video.paused) {
+        video.autoplay = true;
+        video.play().catch(() => {});
+      } else {
+        video.autoplay = false;
+        video.pause();
+      }
+      sync();
+    });
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    sync();
   } else {
     // no video authored: keep any picture as a static background
     const pic = block.querySelector('picture');
@@ -100,4 +124,5 @@ export default function decorate(block) {
   block.textContent = '';
   block.append(mediaWrap);
   if (content.children.length) block.append(content);
+  if (toggle) block.append(toggle);
 }

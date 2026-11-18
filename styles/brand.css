@@ -1,0 +1,88 @@
+/*
+ * Brand tokens extracted from https://thisisbarcelona.com/ (computed styles).
+ * Source fonts (Antique Legacy, Swissposters) are commercial, self-hosted on the
+ * source site and not redistributable here: the families are referenced by name
+ * with size-adjusted local fallbacks (see styles.css). Add the licensed .woff2
+ * files to /fonts and @font-face rules to fonts.css to load them.
+ */
+:root {
+  /* palette */
+  --tib-black: #000;
+  --tib-white: #fff;
+  --tib-warm-white: #f2f2ed;
+  --tib-dark-warm-gray: #242422;
+  --tib-warm-grey: #8c8c8a;
+  --tib-grey: #585858;
+  --tib-grey-300: #cacacc;
+  --tib-grey-700: #39393b;
+  --tib-brand-red: #ff4e4a;
+  --tib-brand-orange: #ff5001;
+  --tib-brand-yellow: #fdc500;
+  --tib-brand-green: #1eaa53;
+  --tib-brand-teal: #1db2b6;
+  --tib-brand-blue: #1290ff;
+  --tib-brand-purple: #8655ff;
+  --tib-brand-pink: #fe90bc;
+  --tib-black-5: rgb(0 0 0 / 5%);
+  --tib-black-25: rgb(0 0 0 / 25%);
+  --tib-white-10: rgb(255 255 255 / 10%);
+  --tib-white-25: rgb(255 255 255 / 25%);
+
+  /* semantic colors */
+  --background-color: var(--tib-white);
+  --text-color: var(--tib-black);
+  --text-muted-color: var(--tib-grey);
+  --link-color: var(--tib-black);
+  --link-hover-color: var(--tib-grey-700);
+  --light-color: var(--tib-warm-white);
+  --dark-color: var(--tib-dark-warm-gray);
+  --focus-ring-color: var(--tib-brand-blue);
+
+  /* fonts */
+  --body-font-family: 'AntiqueLegacy-Regular', antique-legacy-fallback, 'Helvetica Neue', arial, sans-serif;
+  --body-medium-font-family: 'AntiqueLegacy-Medium', antique-legacy-medium-fallback, 'Helvetica Neue', arial, sans-serif;
+  --heading-font-family: var(--body-medium-font-family);
+  --display-font-family: 'SwisspostersVAR-Black', swissposters-fallback, 'Arial Black', sans-serif;
+
+  /* type scale (mobile first) */
+  --body-font-size: 16px;
+  --body-line-height: 1.3;
+  --body-letter-spacing: -0.01em;
+  --body-font-size-l: 18px;
+  --heading-font-size-xxl: 36px;
+  --heading-font-size-xl: 32px;
+  --heading-font-size-l: 28px;
+  --heading-font-size-m: 24px;
+  --heading-font-size-s: 20px;
+  --heading-font-size-xs: 16px;
+  --heading-letter-spacing: -0.02em;
+
+  /* spacing / layout */
+  --section-padding: 48px;
+  --content-max-width: 1512px;
+  --content-gutter: 16px;
+  --nav-height: 64px;
+
+  /* buttons */
+  --button-radius: 2px;
+  --button-padding: 10px 20px;
+  --button-bg: var(--tib-black-5);
+  --button-bg-hover: var(--tib-black-25);
+  --button-color: var(--tib-black);
+  --button-dark-bg: var(--tib-white-10);
+  --button-dark-bg-hover: var(--tib-white-25);
+  --button-dark-color: var(--tib-white);
+}
+
+@media (width >= 900px) {
+  :root {
+    --heading-font-size-xxl: 120px;
+    --heading-font-size-xl: 56px;
+    --heading-font-size-l: 40px;
+    --heading-font-size-m: 24px;
+    --heading-font-size-s: 24px;
+    --heading-font-size-xs: 18px;
+    --section-padding: 80px;
+    --content-gutter: 24px;
+  }
+}

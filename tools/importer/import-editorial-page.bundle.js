@@ -450,6 +450,12 @@ var CustomImportScript = (() => {
     ".share-button",
     // Hidden markers
     "span.tbc-ep-marker",
+    // Interactive filter UI that is not authorable (prescripcion category chips /
+    // activity counters, agenda filter drawer) and screen-reader-only helper text
+    ".prescripcion-interes__wrapper",
+    ".prescripcion-interes__live-region",
+    ".cmp-filters",
+    ".cmp-link__screen-reader-only",
     // Video play/pause controls
     ".js-banner-pause",
     ".js-hero-pause",

@@ -2,7 +2,7 @@
   "status": "success",
   "url": "https://thisisbarcelona.com/architecture",
   "path": "architecture",
-  "timestamp": "2026-11-18T13:59:45.761Z",
+  "timestamp": "2026-11-18T14:40:36.869Z",
   "title": "Architecture | This is Barcelona",
   "template": "editorial-page",
   "blocks": [
@@ -11,5 +11,5 @@
     "hero-banner",
     "cards-highlighted"
   ],
-  "importScript": "6ee690eeeec8"
+  "importScript": "d6e15f48d07c"
 }

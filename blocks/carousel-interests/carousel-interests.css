@@ -1,4 +1,4 @@
-/* carousel-interests: structural styles only; brand styling belongs to the design pass */
+/* carousel-interests: values from source .cmp-prescripcion .prescripcion-interes__swiper */
 .carousel-interests {
   position: relative;
   display: flex;
@@ -6,35 +6,53 @@
   gap: 24px;
 }
 
+/* arrows: 40px black discs, white caret (source .prescripcion-interes__swiper-arrows) */
 .carousel-interests .carousel-interests-nav {
   display: flex;
-  justify-content: flex-end;
-  gap: 8px;
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.carousel-interests .carousel-interests-nav[hidden] {
+  display: none;
 }
 
 .carousel-interests .carousel-interests-prev,
 .carousel-interests .carousel-interests-next {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   margin: 0;
   padding: 0;
-  border: 1px solid currentcolor;
-  border-radius: 50%;
-  background: transparent;
-  color: inherit;
+  border: 1.5px solid transparent;
+  border-radius: 40px;
+  background: var(--tib-black);
+  color: var(--tib-white);
   cursor: pointer;
+}
+
+.carousel-interests .carousel-interests-prev:hover,
+.carousel-interests .carousel-interests-next:hover {
+  background: var(--tib-grey-700);
+  box-shadow: rgb(0 0 0 / 10%) 0 4px 10px 0;
+}
+
+.carousel-interests .carousel-interests-prev:focus-visible,
+.carousel-interests .carousel-interests-next:focus-visible {
+  outline: none;
+  border-color: var(--tib-white);
+  box-shadow: var(--tib-brand-blue) 0 0 0 1px;
 }
 
 .carousel-interests .carousel-interests-prev::before,
 .carousel-interests .carousel-interests-next::before {
   content: '';
-  width: 10px;
-  height: 10px;
-  border-top: 2px solid currentcolor;
-  border-right: 2px solid currentcolor;
+  width: 8px;
+  height: 8px;
+  border-top: 1.5px solid currentcolor;
+  border-right: 1.5px solid currentcolor;
 }
 
 .carousel-interests .carousel-interests-prev::before {
@@ -49,10 +67,14 @@
 
 .carousel-interests .carousel-interests-prev:disabled,
 .carousel-interests .carousel-interests-next:disabled {
-  opacity: 0.4;
+  background: var(--tib-black-5);
+  color: rgb(0 0 0 / 50%);
+  box-shadow: none;
+  backdrop-filter: blur(20px);
   cursor: default;
 }
 
+/* track */
 .carousel-interests .carousel-interests-slides {
   display: flex;
   gap: 16px;
@@ -69,24 +91,79 @@
   display: none;
 }
 
+/* tile: mobile shows 1.4 tiles (251px of 358px at 390px) */
 .carousel-interests .carousel-interests-slide {
   position: relative;
-  flex: 0 0 75%;
+  box-sizing: border-box;
+  flex: 0 0 calc((100% - 6.4px) / 1.4);
   display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex-direction: row;
+  gap: 4px;
+  margin: 0;
+  padding: 8px;
+  border-radius: 2px;
+  background: var(--tib-white);
+  cursor: pointer;
   scroll-snap-align: start;
+}
+
+.carousel-interests .carousel-interests-slide:focus-visible {
+  outline: var(--tib-brand-blue) solid 2px;
+  outline-offset: 2px;
+}
+
+.carousel-interests .carousel-interests-image {
+  width: 100%;
+  max-width: 110px;
+  height: 168px;
+  max-height: 114px;
 }
 
 .carousel-interests .carousel-interests-image picture,
 .carousel-interests .carousel-interests-image img {
   display: block;
-  width: 100%;
-  height: auto;
+  width: inherit;
+  max-width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-interests .carousel-interests-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  align-self: stretch;
+  justify-content: center;
+  gap: 4px;
+  padding-right: 8px;
 }
 
 .carousel-interests .carousel-interests-content p {
   margin: 0;
+  font-family: var(--body-medium-font-family);
+  font-weight: 500;
+  line-height: 120%;
+  color: var(--tib-black);
+}
+
+.carousel-interests .carousel-interests-eyebrow {
+  font-size: 14px;
+  letter-spacing: -0.01em;
+}
+
+.carousel-interests .carousel-interests-content .carousel-interests-label {
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  overflow-wrap: break-word;
+}
+
+.carousel-interests .carousel-interests-label:hover {
+  text-decoration-line: underline;
+}
+
+.carousel-interests .carousel-interests-content a:any-link {
+  color: inherit;
+  text-decoration: none;
 }
 
 /* whole-tile link */
@@ -99,11 +176,42 @@
 @media (width >= 600px) {
   .carousel-interests .carousel-interests-slide {
     flex-basis: calc((100% - 16px) / 2);
+    gap: 8px;
+  }
+
+  .carousel-interests .carousel-interests-image {
+    max-width: 160px;
+    max-height: none;
+  }
+
+  .carousel-interests .carousel-interests-content {
+    gap: 8px;
+  }
+
+  .carousel-interests .carousel-interests-content .carousel-interests-label {
+    font-size: 24px;
+    letter-spacing: -0.48px;
+  }
+}
+
+/* source stretches the illustration between 768px and 1280px */
+@media (width >= 768px) and (width <= 1280px) {
+  .carousel-interests .carousel-interests-image picture,
+  .carousel-interests .carousel-interests-image img {
+    object-fit: fill;
   }
 }
 
 @media (width >= 900px) {
+  .carousel-interests .carousel-interests-nav {
+    justify-content: flex-end;
+  }
+
+  .carousel-interests .carousel-interests-slides {
+    gap: 24px;
+  }
+
   .carousel-interests .carousel-interests-slide {
-    flex-basis: calc((100% - 48px) / 4);
+    flex-basis: calc((100% - 72px) / 4);
   }
 }

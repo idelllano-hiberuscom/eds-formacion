@@ -2,7 +2,7 @@
   "status": "success",
   "url": "https://thisisbarcelona.com/",
   "path": "index",
-  "timestamp": "2026-11-18T14:00:13.835Z",
+  "timestamp": "2026-11-18T14:40:31.426Z",
   "title": "Barcelona Tourism, Official Website | This is Barcelona",
   "template": "editorial-page",
   "blocks": [
@@ -13,5 +13,5 @@
     "hero-banner",
     "cards-highlighted"
   ],
-  "importScript": "6ee690eeeec8"
+  "importScript": "d6e15f48d07c"
 }

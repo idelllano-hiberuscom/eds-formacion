@@ -72,6 +72,8 @@ function updateArrows(block) {
   const max = track.scrollWidth - track.clientWidth - 1;
   prev.disabled = track.scrollLeft <= 1;
   next.disabled = track.scrollLeft >= max;
+  // like the source swiper, hide the arrows when every tile fits
+  prev.parentElement.hidden = prev.disabled && next.disabled;
 }
 
 function scrollByPage(block, dir) {
