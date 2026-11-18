@@ -1,0 +1,15 @@
+{
+  "status": "success",
+  "url": "https://thisisbarcelona.com/architecture",
+  "path": "architecture",
+  "timestamp": "2026-11-18T13:59:45.761Z",
+  "title": "Architecture | This is Barcelona",
+  "template": "editorial-page",
+  "blocks": [
+    "carousel-interests",
+    "agenda",
+    "hero-banner",
+    "cards-highlighted"
+  ],
+  "importScript": "6ee690eeeec8"
+}

@@ -1,0 +1,142 @@
+{
+  "templates": [
+    {
+      "name": "editorial-page",
+      "urls": [
+        "https://thisisbarcelona.com/",
+        "https://thisisbarcelona.com/architecture",
+        "https://thisisbarcelona.com/architecture/houses-and-emblematic-buildings/casa-roviralta"
+      ],
+      "representativeUrl": "https://thisisbarcelona.com/",
+      "description": "Editorial pages built from stacked hero/banner/carousel/cards components (home, category, POI detail)",
+      "blocks": [
+        {
+          "name": "hero-video",
+          "instances": [
+            ".cmp-hero-component.cmp-teaser--hero-home"
+          ]
+        },
+        {
+          "name": "carousel-interests",
+          "instances": [
+            ".cmp-prescripcion .prescripcion-interes__swiper"
+          ]
+        },
+        {
+          "name": "agenda",
+          "instances": [
+            ".cmp-agenda"
+          ]
+        },
+        {
+          "name": "hero-banner",
+          "instances": [
+            "div.banner"
+          ]
+        },
+        {
+          "name": "cards-highlighted",
+          "instances": [
+            ".cmp-card-highlighted"
+          ]
+        }
+      ],
+      "urlPattern": "/*",
+      "sections": [
+        {
+          "id": "section-1",
+          "name": "Home video hero",
+          "selector": [
+            ".cmp-hero-component.cmp-teaser--hero-home",
+            "#cmp-hero-component-0"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-video"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-2",
+          "name": "Interest profiles",
+          "selector": [
+            "section.cmp-prescripcion",
+            "#cmp-prescripcion-0"
+          ],
+          "style": "light-beige",
+          "blocks": [
+            "carousel-interests"
+          ],
+          "defaultContent": [
+            ".prescripcion-interes__swiper-label"
+          ]
+        },
+        {
+          "id": "section-3",
+          "name": "Agenda",
+          "selector": [
+            "section.cmp-agenda",
+            "#cmp-agenda-0"
+          ],
+          "style": null,
+          "blocks": [
+            "agenda"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-4",
+          "name": "Art scene video banner",
+          "selector": [
+            "div.banner:has(#cmp-banner-0)",
+            "div.banner"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-banner"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-5",
+          "name": "Highlighted cards",
+          "selector": [
+            "div.cmp-card-highlighted",
+            "#cmp-card-highlighted-0"
+          ],
+          "style": null,
+          "blocks": [
+            "cards-highlighted"
+          ],
+          "defaultContent": []
+        },
+        {
+          "id": "section-6",
+          "name": "Barcelona Card banner",
+          "selector": [
+            "div.banner:has(#cmp-banner-1)",
+            "div.banner"
+          ],
+          "style": null,
+          "blocks": [
+            "hero-banner"
+          ],
+          "defaultContent": []
+        }
+      ]
+    },
+    {
+      "name": "listing-page",
+      "urls": [
+        "https://thisisbarcelona.com/architecture/modernisme"
+      ],
+      "representativeUrl": "https://thisisbarcelona.com/architecture/modernisme",
+      "description": "Listing page: secondary hero followed by a grid of POI cards",
+      "blocks": [],
+      "urlPattern": "/architecture/*"
+    }
+  ],
+  "metadata": {
+    "projectType": "da"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "type": "da",
+  "sites": {
+    "eds-formacion": {
+      "previewOrg": "idelllano-hiberuscom",
+      "previewSite": "eds-formacion",
+      "contentHostUrl": "https://content.da.live/idelllano-hiberuscom/eds-formacion/",
+      "libraryUrl": "https://main--sta-boilerplate--aemdemos.aem.page/tools/sidekick/library.json"
+    }
+  }
+}

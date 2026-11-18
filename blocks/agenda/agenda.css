@@ -1,0 +1,141 @@
+/* agenda: structural styles only; brand styling belongs to the design pass */
+.agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.agenda .agenda-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.agenda .agenda-title {
+  flex: 1 1 320px;
+  margin: 0;
+}
+
+.agenda .agenda-view-toggle,
+.agenda .agenda-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.agenda .agenda-view-btn,
+.agenda .agenda-chip {
+  margin: 0;
+  padding: 8px 16px;
+  border: 1px solid currentcolor;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.agenda .agenda-view-btn[aria-pressed='true'],
+.agenda .agenda-chip[aria-pressed='true'] {
+  background: var(--light-color, #f2f2ed);
+}
+
+.agenda .agenda-events {
+  display: grid;
+  gap: 24px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.agenda .agenda-event-inner {
+  position: relative;
+  display: grid;
+  gap: 16px;
+}
+
+.agenda .agenda-event-image img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.agenda .agenda-event-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agenda .agenda-event-date {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agenda .agenda-event-date time {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.agenda .agenda-date-day {
+  font-size: 1.5em;
+}
+
+.agenda .agenda-event-meta,
+.agenda .agenda-event-summary,
+.agenda .agenda-event-title {
+  margin: 0;
+}
+
+.agenda .agenda-event-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* the title link covers the whole event */
+.agenda .agenda-event-title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
+.agenda .agenda-status:empty {
+  display: none;
+}
+
+.agenda .agenda-footer {
+  display: flex;
+  justify-content: center;
+}
+
+.agenda .agenda-load-more[hidden] {
+  display: none;
+}
+
+@media (width >= 900px) {
+  /* list view: image | body in one row per event */
+  .agenda.agenda-view-list .agenda-event-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    align-items: center;
+  }
+
+  .agenda.agenda-view-list .agenda-events {
+    gap: 32px;
+  }
+
+  /* grid view: cards */
+  .agenda.agenda-view-grid .agenda-events {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (width >= 1200px) {
+  .agenda.agenda-view-grid .agenda-events {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

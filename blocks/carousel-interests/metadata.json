@@ -1,0 +1,39 @@
+{
+  "variantName": "carousel-interests",
+  "baseBlock": "carousel",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": [
+    {
+      "section": "Interest profiles",
+      "selector": "#cmp-prescripcion-0",
+      "background": "#f2f2ed",
+      "backgroundImage": null
+    }
+  ],
+  "contentPattern": [
+    "cmp-prescripcion swiper: 4 interest profiles (How about some / sophistication; Lead me to the / urban pulse; Show me around / I'm new here; I'm open to / suggestions) with arquetip-* illustrations | Interactive swiper of 4 profile tiles (approved mapping cmp-prescripcion -> carousel-interests). Labels are paragraphs (eyebrow + label), not headings."
+  ],
+  "options": [],
+  "memberVariantIds": [],
+  "blockContent": {
+    "baseBlock": "carousel",
+    "source": "get_block_details /block-collection/carousel",
+    "rows": [
+      {
+        "row": "1..4 (one per slide)",
+        "cells": [
+          "Illustration image (arquetip-*.png)",
+          "Eyebrow paragraph (e.g. 'How about some') + label paragraph (e.g. 'sophistication')"
+        ]
+      }
+    ]
+  },
+  "sectionMetadata": [
+    {
+      "style": "light-beige"
+    }
+  ],
+  "sourceUrl": "https://thisisbarcelona.com/",
+  "usage": "One row per tile: illustration image | eyebrow paragraph + label paragraph. Prev/next arrows scroll the tiles. A single link in the text cell makes the whole tile clickable.",
+  "reuseGuidance": "Use for short rows of illustrated choice tiles. For full-width slides with headings and CTAs, use carousel."
+}

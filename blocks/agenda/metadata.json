@@ -1,0 +1,92 @@
+{
+  "variantName": "agenda",
+  "baseBlock": "custom",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": [
+    {
+      "section": "Agenda",
+      "selector": "#cmp-agenda-0",
+      "background": "#ffffff",
+      "backgroundImage": null
+    }
+  ],
+  "contentPattern": [
+    "cmp-agenda: title 'Discover what's happening in Barcelona now, and what's coming next' + live event listing configuration | Dynamic event listing loaded live from Elasticsearch with filters, grid/list toggle and See all (approved new block 'agenda'). Configuration captured as key/value rows; events are not authored."
+  ],
+  "options": [],
+  "memberVariantIds": [],
+  "blockContent": {
+    "baseBlock": null,
+    "source": "new block (approved)",
+    "rows": [
+      {
+        "row": 1,
+        "cells": [
+          "title",
+          "Discover what's happening in Barcelona now, and what's coming next"
+        ]
+      },
+      {
+        "row": 2,
+        "cells": [
+          "endpoint",
+          "/bin/thisisbcn/pois/search"
+        ]
+      },
+      {
+        "row": 3,
+        "cells": [
+          "taxonomy",
+          "thisisbarcelona:transversals/tipus-contingut/content-agenda (filter key tipus-contingut:content-agenda)"
+        ]
+      },
+      {
+        "row": 4,
+        "cells": [
+          "type",
+          "main"
+        ]
+      },
+      {
+        "row": 5,
+        "cells": [
+          "limit",
+          "4"
+        ]
+      },
+      {
+        "row": 6,
+        "cells": [
+          "order",
+          "startDateAsc"
+        ]
+      },
+      {
+        "row": 7,
+        "cells": [
+          "view",
+          "list"
+        ]
+      },
+      {
+        "row": 8,
+        "cells": [
+          "load-more-label",
+          "See all"
+        ]
+      },
+      {
+        "row": 9,
+        "cells": [
+          "seasons",
+          "spring 20/03-21/06, summer 21/06-23/09, autumn 23/09-21/12, winter 21/12-20/03"
+        ]
+      }
+    ],
+    "notes": "Key/value config block; events fetched live. Save/share buttons out of scope."
+  },
+  "sectionMetadata": null,
+  "sourceUrl": "https://thisisbarcelona.com/",
+  "usage": "Key/value config block (title, endpoint, taxonomy, type, limit, order, view, load-more-label, seasons; optional origin). Events are fetched live from the source search endpoint and rendered as a list or grid with a view toggle, season filter chips and a load-more button.",
+  "reuseGuidance": "Use wherever the source page shows the cmp-agenda listing; change taxonomy/limit/order per page. Events are not authored."
+}

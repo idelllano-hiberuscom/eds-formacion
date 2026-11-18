@@ -1,0 +1,104 @@
+/* hero-banner: structural styles only; brand styling belongs to the design pass */
+.hero-banner-container .hero-banner-wrapper {
+  max-width: unset;
+  padding: 0;
+}
+
+.hero-banner {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: flex-end;
+  min-height: 560px;
+  overflow: hidden;
+}
+
+.hero-banner .hero-banner-media {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+}
+
+.hero-banner .hero-banner-media video,
+.hero-banner .hero-banner-media picture,
+.hero-banner .hero-banner-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hero-banner .hero-banner-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 24px 80px;
+}
+
+.hero-banner .hero-banner-title {
+  margin: 0 0 16px;
+}
+
+.hero-banner .hero-banner-title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.hero-banner .hero-banner-content p {
+  max-width: 60ch;
+}
+
+.hero-banner .hero-banner-toggle {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* pause icon (two bars) while playing */
+.hero-banner .hero-banner-toggle::before {
+  content: '';
+  width: 12px;
+  height: 14px;
+  border-left: 4px solid currentcolor;
+  border-right: 4px solid currentcolor;
+  box-sizing: border-box;
+}
+
+/* play icon (triangle) while paused */
+.hero-banner .hero-banner-toggle.is-paused::before {
+  width: 0;
+  height: 0;
+  margin-left: 3px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 13px solid currentcolor;
+  border-right: 0;
+}
+
+@media (width >= 900px) {
+  .hero-banner {
+    min-height: 640px;
+  }
+
+  .hero-banner .hero-banner-content {
+    padding: 48px 32px 96px;
+  }
+
+  .hero-banner .hero-banner-toggle {
+    right: 32px;
+    bottom: 32px;
+  }
+}

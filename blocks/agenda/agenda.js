@@ -1,0 +1,356 @@
+/**
+ * agenda: live event listing fetched from the This is Barcelona POI search endpoint.
+ *
+ * Key/value config rows (all optional except endpoint):
+ *   title            heading shown above the listing
+ *   endpoint         search endpoint; relative paths resolve against `origin`
+ *   origin           source host (default https://thisisbarcelona.com)
+ *   taxonomy         tag filter, e.g. "tipus-contingut:content-agenda" or the full tag path
+ *   type             listing type of the source component (recorded, not sent)
+ *   limit            page size (default 4)
+ *   order            orderBy value (default startDateAsc)
+ *   view             initial view: list | grid (default list)
+ *   load-more-label  label of the button that loads the next page
+ *   seasons          "spring 20/03-21/06, summer 21/06-23/09, ..." (dd/mm ranges)
+ *
+ * Request: GET {endpoint}?tagsfilter&dateFrom[&dateTo&excludeUndatedAgenda]
+ *          &poiTypeSelector=agendaType&language&maxResults&offset&orderBy
+ * Response: { items: [{ id, title, titleUrl, description, imageUrl, imageAlt,
+ *            infoTags[], address, startDate, endDate }], total }
+ */
+import { readBlockConfig } from '../../scripts/aem.js';
+
+const DEFAULT_ORIGIN = 'https://thisisbarcelona.com';
+const REQUEST_TIMEOUT = 10000;
+
+function text(value) {
+  if (Array.isArray(value)) return value.join(' ').trim();
+  return (value || '').toString().trim();
+}
+
+/** "a:b/c/d (filter key x:y)" -> "x:y"; "ns:root/group/tag" -> "group:tag" */
+export function parseTaxonomy(raw) {
+  const value = text(raw);
+  if (!value) return '';
+  const explicit = value.match(/filter key\s+([^\s)]+)/i);
+  if (explicit) return explicit[1];
+  const path = value.split(/\s+/)[0];
+  const tagPath = path.includes(':') ? path.split(':').pop() : path;
+  const parts = tagPath.split('/').filter(Boolean);
+  if (parts.length >= 2 && !path.match(/^[^/]+:[^/]+$/)) {
+    return `${parts[parts.length - 2]}:${parts[parts.length - 1]}`;
+  }
+  return path;
+}
+
+/** "spring 20/03-21/06, winter 21/12-20/03" -> [{ name, from: [d, m], to: [d, m] }] */
+export function parseSeasons(raw) {
+  const value = Array.isArray(raw) ? raw.join(',') : text(raw);
+  return value.split(/[,;\n]/).map((part) => {
+    const m = part.trim().match(/^([\p{L}\s-]+?)\s*:?\s*(\d{1,2})\/(\d{1,2})\s*-\s*(\d{1,2})\/(\d{1,2})$/u);
+    if (!m) return null;
+    return {
+      name: m[1].trim(),
+      from: [Number(m[2]), Number(m[3])],
+      to: [Number(m[4]), Number(m[5])],
+    };
+  }).filter(Boolean);
+}
+
+/** Current or next occurrence of a season, clipped so it never starts before today. */
+export function seasonRange(season, now = new Date()) {
+  const today = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate());
+  const year = now.getUTCFullYear();
+  const wraps = season.to[1] < season.from[1]
+    || (season.to[1] === season.from[1] && season.to[0] < season.from[0]);
+  for (let y = year - 1; y <= year + 1; y += 1) {
+    const start = Date.UTC(y, season.from[1] - 1, season.from[0]);
+    const end = Date.UTC(wraps ? y + 1 : y, season.to[1] - 1, season.to[0], 23, 59);
+    if (end >= today) return { from: new Date(Math.max(start, today)), to: new Date(end) };
+  }
+  return null;
+}
+
+function isoDay(date, endOfDay = false) {
+  const d = date.toISOString().slice(0, 10);
+  return `${d}T${endOfDay ? '23:59:00' : '00:00:00'}Z`;
+}
+
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function el(tag, className, content) {
+  const node = document.createElement(tag);
+  if (className) node.className = className;
+  if (content !== undefined && content !== null) node.textContent = content;
+  return node;
+}
+
+function absolute(url, origin) {
+  if (!url) return '';
+  try {
+    return new URL(url, origin).href;
+  } catch (e) {
+    return '';
+  }
+}
+
+function formatDateParts(iso, lang) {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return null;
+  const opts = { timeZone: 'UTC' };
+  return {
+    day: new Intl.DateTimeFormat(lang, { ...opts, day: '2-digit' }).format(date),
+    month: new Intl.DateTimeFormat(lang, { ...opts, month: 'short' }).format(date),
+    year: new Intl.DateTimeFormat(lang, { ...opts, year: 'numeric' }).format(date),
+    full: new Intl.DateTimeFormat(lang, {
+      ...opts, day: 'numeric', month: 'long', year: 'numeric',
+    }).format(date),
+    iso: date.toISOString(),
+  };
+}
+
+function buildDate(item, lang) {
+  const wrap = el('div', 'agenda-event-date');
+  const start = item.startDate && formatDateParts(item.startDate, lang);
+  if (!start) return null;
+  const end = item.endDate && formatDateParts(item.endDate, lang);
+  const part = (p) => {
+    const t = document.createElement('time');
+    t.dateTime = p.iso;
+    t.setAttribute('aria-label', p.full);
+    t.append(el('span', 'agenda-date-day', p.day), el('span', 'agenda-date-month', `${p.month} ${p.year}`));
+    return t;
+  };
+  wrap.append(part(start));
+  if (end && end.full !== start.full) {
+    wrap.append(el('span', 'agenda-date-separator', '–'), part(end));
+    wrap.classList.add('is-range');
+  }
+  return wrap;
+}
+
+function buildEvent(item, config) {
+  const li = el('li', 'agenda-event');
+  const article = el('article', 'agenda-event-inner');
+  const href = absolute(item.titleUrl || item.ctaSaberUrl, config.origin);
+
+  if (item.imageUrl) {
+    const media = el('div', 'agenda-event-image');
+    const img = document.createElement('img');
+    img.src = item.imageUrl;
+    img.alt = item.imageAlt || '';
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    img.addEventListener('error', () => media.remove());
+    media.append(img);
+    article.append(media);
+  }
+
+  const body = el('div', 'agenda-event-body');
+  const date = buildDate(item, config.lang);
+  if (date) body.append(date);
+
+  const metaParts = [];
+  if (item.infoTags?.length) metaParts.push(el('span', 'agenda-event-category', item.infoTags.join(' | ')));
+  if (item.address) metaParts.push(el('span', 'agenda-event-location', item.address));
+  if (metaParts.length) {
+    const meta = el('p', 'agenda-event-meta');
+    metaParts.forEach((p, i) => {
+      if (i) meta.append(el('span', 'agenda-event-divider', '|'));
+      meta.append(p);
+    });
+    body.append(meta);
+  }
+
+  const title = el('h3', 'agenda-event-title');
+  if (href) {
+    const a = el('a', null, item.title || '');
+    a.href = href;
+    title.append(a);
+  } else {
+    title.textContent = item.title || '';
+  }
+  body.append(title);
+
+  if (item.description) body.append(el('p', 'agenda-event-summary', item.description));
+
+  if (href) {
+    const more = el('a', 'agenda-event-link', 'Find out more');
+    more.href = href;
+    more.setAttribute('aria-hidden', 'true');
+    more.tabIndex = -1;
+    body.append(more);
+  }
+
+  article.append(body);
+  li.append(article);
+  return li;
+}
+
+function readConfig(block) {
+  const raw = readBlockConfig(block);
+  const origin = text(raw.origin) || DEFAULT_ORIGIN;
+  const limit = parseInt(text(raw.limit), 10);
+  const view = text(raw.view).toLowerCase() === 'grid' ? 'grid' : 'list';
+  return {
+    title: text(raw.title),
+    origin,
+    endpoint: absolute(text(raw.endpoint) || '/bin/thisisbcn/pois/search', origin),
+    tagsfilter: parseTaxonomy(raw.taxonomy),
+    type: text(raw.type),
+    limit: Number.isFinite(limit) && limit > 0 ? limit : 4,
+    order: text(raw.order) || 'startDateAsc',
+    view,
+    loadMoreLabel: text(raw['load-more-label']) || 'See all',
+    seasons: parseSeasons(raw.seasons),
+    lang: (document.documentElement.lang || 'en').slice(0, 2).toLowerCase(),
+  };
+}
+
+async function fetchEvents(config, { offset, range }) {
+  const url = new URL(config.endpoint);
+  const today = new Date();
+  if (config.tagsfilter) url.searchParams.set('tagsfilter', config.tagsfilter);
+  url.searchParams.set('dateFrom', isoDay(range ? range.from : today));
+  if (range) {
+    url.searchParams.set('dateTo', isoDay(range.to, true));
+    url.searchParams.set('excludeUndatedAgenda', 'true');
+  }
+  url.searchParams.set('poiTypeSelector', 'agendaType');
+  url.searchParams.set('language', config.lang);
+  url.searchParams.set('maxResults', String(config.limit));
+  if (offset) url.searchParams.set('offset', String(offset));
+  url.searchParams.set('orderBy', config.order);
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
+  try {
+    const resp = await fetch(url, { signal: controller.signal, credentials: 'omit' });
+    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+    const json = await resp.json();
+    return {
+      items: Array.isArray(json.items) ? json.items : [],
+      total: Number(json.total) || 0,
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function buildToggle(block, initial) {
+  const toggle = el('div', 'agenda-view-toggle');
+  toggle.setAttribute('role', 'group');
+  toggle.setAttribute('aria-label', 'View');
+  const buttons = ['grid', 'list'].map((view) => {
+    const b = el('button', `agenda-view-btn agenda-view-btn-${view}`, capitalize(view));
+    b.type = 'button';
+    b.dataset.view = view;
+    return b;
+  });
+  const set = (view) => {
+    block.classList.toggle('agenda-view-grid', view === 'grid');
+    block.classList.toggle('agenda-view-list', view === 'list');
+    buttons.forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.view === view)));
+  };
+  buttons.forEach((b) => b.addEventListener('click', () => set(b.dataset.view)));
+  toggle.append(...buttons);
+  set(initial);
+  return toggle;
+}
+
+export default function decorate(block) {
+  const config = readConfig(block);
+  block.textContent = '';
+  block.setAttribute('aria-busy', 'true');
+
+  const header = el('div', 'agenda-header');
+  if (config.title) header.append(el('h2', 'agenda-title', config.title));
+  header.append(buildToggle(block, config.view));
+  block.append(header);
+
+  const state = { offset: 0, range: null, loaded: 0 };
+
+  let chips;
+  if (config.seasons.length) {
+    chips = el('div', 'agenda-filters');
+    chips.setAttribute('role', 'group');
+    chips.setAttribute('aria-label', 'Filter by season');
+    config.seasons.forEach((season) => {
+      const chip = el('button', 'agenda-chip', capitalize(season.name));
+      chip.type = 'button';
+      chip.dataset.season = season.name.toLowerCase();
+      chip.setAttribute('aria-pressed', 'false');
+      chips.append(chip);
+    });
+    block.append(chips);
+  }
+
+  const list = el('ul', 'agenda-events');
+  const status = el('p', 'agenda-status');
+  status.setAttribute('role', 'status');
+  status.setAttribute('aria-live', 'polite');
+  const more = el('button', 'agenda-load-more button secondary', config.loadMoreLabel);
+  more.type = 'button';
+  more.hidden = true;
+  const footer = el('div', 'agenda-footer');
+  footer.append(more);
+  block.append(list, status, footer);
+
+  let requestId = 0;
+  const load = async (append) => {
+    requestId += 1;
+    const current = requestId;
+    if (!append) {
+      state.offset = 0;
+      state.loaded = 0;
+    }
+    block.setAttribute('aria-busy', 'true');
+    more.disabled = true;
+    status.textContent = append ? '' : 'Loading events…';
+    try {
+      const { items, total } = await fetchEvents(config, state);
+      if (current !== requestId) return;
+      if (!append) list.textContent = '';
+      items.forEach((item) => list.append(buildEvent(item, config)));
+      state.loaded += items.length;
+      state.offset = state.loaded;
+      status.textContent = state.loaded ? '' : 'No events found.';
+      more.hidden = !items.length || state.loaded >= total;
+    } catch (e) {
+      if (current !== requestId) return;
+      // CORS, network, timeout or bad response: degrade to a short message
+      if (!append) list.textContent = '';
+      more.hidden = true;
+      status.textContent = 'Events could not be loaded right now.';
+      block.classList.add('agenda-error');
+    } finally {
+      if (current === requestId) {
+        more.disabled = false;
+        block.removeAttribute('aria-busy');
+      }
+    }
+  };
+
+  more.addEventListener('click', () => load(true));
+
+  chips?.addEventListener('click', (e) => {
+    const chip = e.target.closest('.agenda-chip');
+    if (!chip) return;
+    const active = chip.getAttribute('aria-pressed') === 'true';
+    chips.querySelectorAll('.agenda-chip').forEach((c) => c.setAttribute('aria-pressed', 'false'));
+    if (active) {
+      state.range = null;
+    } else {
+      chip.setAttribute('aria-pressed', 'true');
+      const season = config.seasons.find((s) => s.name.toLowerCase() === chip.dataset.season);
+      state.range = season ? seasonRange(season) : null;
+    }
+    block.classList.remove('agenda-error');
+    load(false);
+  });
+
+  // not awaited: a slow or blocked request must not hold up later sections
+  load(false);
+}

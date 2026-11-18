@@ -1,0 +1,43 @@
+{
+  "variantName": "cards-highlighted",
+  "baseBlock": "cards",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": [
+    {
+      "section": "Highlighted Instagram cards",
+      "selector": "#cmp-card-highlighted-0",
+      "background": "#ffffff",
+      "backgroundImage": null
+    }
+  ],
+  "contentPattern": [
+    "cmp-card-highlighted: title + text + CTA plus carousel of flip cards (video) | Intro panel (title, text, CTA) plus carousel of flip cards with DM video/images (approved mapping cmp-card-highlighted -> cards-highlighted). Intro kept inside the block per the approved mapping."
+  ],
+  "options": [],
+  "memberVariantIds": [],
+  "blockContent": {
+    "baseBlock": "cards",
+    "source": "get_block_details /block-collection/cards",
+    "rows": [
+      {
+        "row": 1,
+        "cells": [
+          "(intro) empty",
+          "H2 'An ungeometric geometry', lead paragraph, CTA link 'See more on Instagram' -> https://www.instagram.com/thisisbarcelona_official"
+        ]
+      },
+      {
+        "row": "2..n (one per flip card)",
+        "cells": [
+          "DM video link / image",
+          "Card title / back-face text (optional)"
+        ]
+      }
+    ],
+    "notes": "First row is the intro panel; following rows are the flip cards shown in the carousel."
+  },
+  "sectionMetadata": null,
+  "sourceUrl": "https://thisisbarcelona.com/",
+  "usage": "Row 1 is the intro panel (leave the first cell empty; second cell holds H2, text and CTA). Each following row is a flip card: media (Scene7 video link and/or image) | optional back-face text. Cards with back text flip on click or Enter/Space.",
+  "reuseGuidance": "Use for an editorial intro next to a carousel of vertical video/image cards. For a static grid of cards, use cards."
+}

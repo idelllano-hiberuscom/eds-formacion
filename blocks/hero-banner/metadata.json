@@ -1,0 +1,47 @@
+{
+  "variantName": "hero-banner",
+  "baseBlock": "hero",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": [
+    {
+      "section": "Art scene video banner",
+      "selector": "#cmp-banner-0",
+      "background": "#ffffff",
+      "backgroundImage": "video"
+    },
+    {
+      "section": "Barcelona Card banner",
+      "selector": "#cmp-banner-1",
+      "background": "#ffffff",
+      "backgroundImage": "video"
+    }
+  ],
+  "contentPattern": [
+    "cmp-banner: video background, CTA 'Discover' -> /agenda | cmp-banner with video background and CTA (approved mapping banner -> hero-banner). The video background belongs to the block.",
+    "cmp-banner: video background, title 'Barcelona Card', description, CTA 'Discover' -> /tickets/barcelona-card | Second cmp-banner instance with video background, title, description, CTA (approved mapping banner -> hero-banner)."
+  ],
+  "options": [],
+  "memberVariantIds": [],
+  "blockContent": {
+    "baseBlock": "hero",
+    "source": "get_block_details /block-collection/hero",
+    "rows": [
+      {
+        "row": 1,
+        "cells": [
+          "Background media: Scene7 video link with poster image"
+        ]
+      },
+      {
+        "row": 2,
+        "cells": [
+          "H2 title (optional, may be a link), description paragraph (optional), CTA link 'Discover'"
+        ]
+      }
+    ]
+  },
+  "sectionMetadata": null,
+  "sourceUrl": "https://thisisbarcelona.com/",
+  "usage": "Banner with a background video (Scene7 /is/content/ link plus poster image) or a plain image in row 1, and an optional H2 (may be a link), description and CTA in row 2. A play/pause button is added when there is a video.",
+  "reuseGuidance": "Use for mid-page promotional banners. For the full-screen home hero with desktop and mobile videos, use hero-video."
+}

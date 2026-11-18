@@ -1,0 +1,47 @@
+{
+  "variantName": "hero-video",
+  "baseBlock": "hero",
+  "canonicalModel": "standalone",
+  "visualCharacteristics": [
+    {
+      "section": "Home video hero",
+      "selector": "#cmp-hero-component-0",
+      "background": "#ffffff",
+      "backgroundImage": "video"
+    }
+  ],
+  "contentPattern": [
+    "cmp-teaser--hero-home: desktop+mobile video (TIB-Reel-Home-tardor-2026-Master / -mobile), text 'It's mushroom season. / Or autumn, as some people call it.' | Full-screen video hero (approved mapping cmp-teaser--hero-home -> hero-video). Desktop and mobile Scene7 videos in media rows, the two text lines as paragraphs."
+  ],
+  "options": [],
+  "memberVariantIds": [],
+  "blockContent": {
+    "baseBlock": "hero",
+    "source": "get_block_details /block-collection/hero",
+    "rows": [
+      {
+        "row": 1,
+        "cells": [
+          "Desktop video: Scene7 link TIB-Reel-Home-tardor-2026-Master-0x720-3000k (poster TIB-Reel-Home-tardor-2026-Master-AVS)"
+        ]
+      },
+      {
+        "row": 2,
+        "cells": [
+          "Mobile video: TIB-Reel-Home-tardor-2026-mobile (poster TIB-Reel-Home-tardor-2026-mobile-AVS)"
+        ]
+      },
+      {
+        "row": 3,
+        "cells": [
+          "Paragraph 'It's mushroom season.' + paragraph 'Or autumn, as some people call it.'"
+        ]
+      }
+    ],
+    "notes": "Base hero is media row + content row; the variant adds a second media row for the mobile source. No heading: the lines are paragraphs."
+  },
+  "sectionMetadata": null,
+  "sourceUrl": "https://thisisbarcelona.com/",
+  "usage": "Full-screen home hero: desktop Scene7 video (row 1), mobile Scene7 video (row 2), and text paragraphs (row 3). Videos autoplay muted, loop and play inline; the poster image in each media row shows until the video plays. The block swaps to the mobile video below 900px.",
+  "reuseGuidance": "Use for a full-bleed video hero with no heading. For an image or single-video banner with a title and CTA, use hero-banner."
+}
